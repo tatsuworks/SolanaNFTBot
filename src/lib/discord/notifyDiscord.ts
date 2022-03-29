@@ -155,7 +155,7 @@ export async function notifyDiscordListing(
       height: 600,
     },
     footer: {
-      text: `Sold on ${marketplace.name}`,
+      text: `Listed on ${marketplace.name}`,
       icon_url: marketplace.iconURL,
       proxy_icon_url: url,
     },
