@@ -6,7 +6,7 @@ import {
 import initWorkers from "workers/initWorkers";
 import { newConnection } from "lib/solana/connection";
 import dotenv from "dotenv";
-import notifyDiscordSale, { getStatus } from "lib/discord/notifyDiscord";
+import { notifyDiscordSale, getStatus } from "lib/discord/notifyDiscord";
 import { loadConfig, SubscriptionType } from "config";
 import { Worker } from "workers/types";
 import notifyNFTSalesWorker from "workers/notifyNFTSalesWorker";
