@@ -121,7 +121,7 @@ import queue from "queue";
         return notifyNFTSalesWorker(notifier, web3Conn, project);
       }
       if (s.type === SubscriptionType.Listing) {
-        if (!s.mintAddress)
+        if (!s.collection)
           throw new Error("collection must be provided for listings tracking");
         const project = {
           discordChannelId: s.discordChannelId,
