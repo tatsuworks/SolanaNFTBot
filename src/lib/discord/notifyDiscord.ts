@@ -7,6 +7,9 @@ import { NFTSale, SaleMethod } from "lib/marketplaces";
 import truncateForAddress from "lib/truncateForAddress";
 import logger from "lib/logger";
 import { fetchDiscordChannel } from "./index";
+import { MEActivity } from "workers/types";
+import axios, { AxiosError } from "axios";
+import magicEden from "lib/marketplaces/magicEden";
 
 const status: {
   totalNotified: number;
@@ -19,7 +22,7 @@ export function getStatus() {
   return status;
 }
 
-export default async function notifyDiscordSale(
+export async function notifyDiscordSale(
   client: Discord.Client,
   channelId: string,
   nftSale: NFTSale,
@@ -113,3 +116,79 @@ export default async function notifyDiscordSale(
     status.totalNotified++;
   }
 }
+export async function notifyDiscordListing(
+  client: Discord.Client,
+  channelId: string,
+  listing: MEActivity,
+  test?: boolean
+) {
+  const channel = await fetchDiscordChannel(client, channelId);
+  if (!channel) {
+    return;
+  }
+
+  const description = `Listed for ${listing.price} S◎L on MagicEden`;
+  const marketplace = magicEden;
+  // get mint info?
+  const nftData = await getMETokenMetaData(listing.tokenMint);
+  const url = `https://magiceden.io/item-details/${nftData}`;
+  const embedMsg = new MessageEmbed({
+    color: 0x0099ff,
+    title: nftData.name,
+    url,
+    timestamp: new Date(listing.blockTime * 1000),
+    fields: [
+      {
+        name: "Price",
+        value: `${listing.price} S◎L`,
+        inline: false,
+      },
+      {
+        name: "Seller",
+        value: listing.seller ? truncateForAddress(listing.seller) : "unknown",
+        inline: true,
+      },
+    ],
+    image: {
+      url: encodeURI(nftData.image),
+      width: 600,
+      height: 600,
+    },
+    footer: {
+      text: `Sold on ${marketplace.name}`,
+      icon_url: marketplace.iconURL,
+      proxy_icon_url: url,
+    },
+  });
+
+  await channel.send({
+    embeds: [embedMsg],
+  });
+  const logMsg = `Notified discord #${channel.name}: ${nftData.name} - ${description}`;
+  logger.log(logMsg);
+
+  if (!test) {
+    status.lastNotified = new Date();
+    status.totalNotified++;
+  }
+}
+
+interface METokenMetadata {
+  name: string;
+  image: string;
+}
+const getMETokenMetaData = async (tokenAddr: string) => {
+  try {
+    const results = await axios.get(
+      `https://api-mainnet.magiceden.dev/v2/tokens/${tokenAddr}`
+    );
+    const data = <METokenMetadata>results.data;
+    return data;
+  } catch (err: any | AxiosError) {
+    if (axios.isAxiosError(err)) {
+      // Access to config, request, and response
+      logger.error(err?.response?.data);
+    }
+    throw err;
+  }
+};

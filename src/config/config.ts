@@ -1,7 +1,11 @@
-export interface Subscription {
-  discordChannelId: string;
-  type: "NFTSale";
-  mintAddress: string;
+import { Project } from "workers/types";
+
+export enum SubscriptionType {
+  Sale = "NFTSale",
+  Listing = "NFTListing",
+}
+export interface Subscription extends Project {
+  type: SubscriptionType;
 }
 
 interface TwitterConfig {
@@ -45,7 +49,7 @@ export function loadConfig(): MutableConfig {
     process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID
   ) {
     config.subscriptions.push({
-      type: "NFTSale",
+      type: SubscriptionType.Sale,
       discordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
       mintAddress: process.env.SUBSCRIPTION_MINT_ADDRESS || "",
     });
