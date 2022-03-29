@@ -131,7 +131,7 @@ export async function notifyDiscordListing(
   const marketplace = magicEden;
   // get mint info?
   const nftData = await getMETokenMetaData(listing.tokenMint);
-  const url = `https://magiceden.io/item-details/${nftData}`;
+  const url = `https://magiceden.io/item-details/${listing.tokenMint}`;
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
