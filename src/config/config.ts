@@ -54,6 +54,13 @@ export function loadConfig(): MutableConfig {
       mintAddress: process.env.SUBSCRIPTION_MINT_ADDRESS || "",
     });
   }
+  if (process.env.COLLECTION && process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID) {
+    config.subscriptions.push({
+      type: SubscriptionType.Listing,
+      discordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
+      collection: process.env.COLLECTION || "",
+    });
+  }
 
   return {
     ...config,
