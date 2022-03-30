@@ -83,12 +83,12 @@ export async function notifyDiscordSale(
       },
       {
         name: "Buyer",
-        value: truncateForAddress(nftSale.buyer),
+        value: craftAccountLink(nftSale.buyer),
         inline: true,
       },
       {
         name: "Seller",
-        value: nftSale.seller ? truncateForAddress(nftSale.seller) : "unknown",
+        value: craftAccountLink(nftSale.seller),
         inline: true,
       },
     ],
@@ -115,6 +115,12 @@ export async function notifyDiscordSale(
     status.lastNotified = new Date();
     status.totalNotified++;
   }
+}
+function craftAccountLink(address: string | undefined) {
+  if (!address) return "unknown";
+
+  const truncated = truncateForAddress(address);
+  return `[${truncated}](https://solscan.io/account/${address})`;
 }
 export async function notifyDiscordListing(
   client: Discord.Client,
@@ -159,7 +165,7 @@ export async function notifyDiscordListing(
       },
       {
         name: "Seller",
-        value: listing.seller ? truncateForAddress(listing.seller) : "unknown",
+        value: craftAccountLink(listing.seller),
         inline: true,
       },
     ],
