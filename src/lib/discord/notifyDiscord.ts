@@ -44,7 +44,7 @@ export async function notifyDiscordSale(
     nftSale.method === SaleMethod.Bid ? " via bidding" : ""
   }`;
 
-  const description = `${method} for ${nftSale.getPriceInSOL()} S◎L on ${
+  const description = `${method} for ${nftSale.getPriceInSOL()} SOL◎ on ${
     marketplace.name
   }`;
 
@@ -76,7 +76,7 @@ export async function notifyDiscordSale(
     fields: [
       {
         name: "Price",
-        value: `${nftSale.getPriceInSOL()} S◎L ${
+        value: `${nftSale.getPriceInSOL()} SOL◎ ${
           nftSale.method === SaleMethod.Bid ? "(Via bidding)" : ""
         }`,
         inline: false,
@@ -127,11 +127,25 @@ export async function notifyDiscordListing(
     return;
   }
 
-  const description = `Listed for ${listing.price} S◎L on MagicEden`;
+  const description = `Listed for ${listing.price} SOL◎ on MagicEden`;
   const marketplace = magicEden;
   // get mint info?
   const nftData = await getMETokenMetaData(listing.tokenMint);
   const url = `https://magiceden.io/item-details/${listing.tokenMint}`;
+
+  const actionRowMsg = new MessageActionRow({
+    type: 1,
+    components: [
+      {
+        style: 5,
+        label: `View Token`,
+        url: `https://solscan.io/token/${listing.tokenMint}`,
+        disabled: false,
+        type: 2,
+      },
+    ],
+  });
+
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
@@ -140,7 +154,7 @@ export async function notifyDiscordListing(
     fields: [
       {
         name: "Price",
-        value: `${listing.price} S◎L`,
+        value: `${listing.price} SOL◎`,
         inline: false,
       },
       {
@@ -162,6 +176,7 @@ export async function notifyDiscordListing(
   });
 
   await channel.send({
+    components: [actionRowMsg],
     embeds: [embedMsg],
   });
   const logMsg = `Notified discord #${channel.name}: ${nftData.name} - ${description}`;
