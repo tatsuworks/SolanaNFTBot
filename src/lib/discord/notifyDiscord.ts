@@ -149,6 +149,13 @@ export async function notifyDiscordListing(
         disabled: false,
         type: 2,
       },
+      {
+        style: 5,
+        label: `Moonrank`,
+        url: `https://moonrank.app/collection/meekolony/${listing.tokenMint}`,
+        disabled: false,
+        type: 2,
+      },
     ],
   });
 
