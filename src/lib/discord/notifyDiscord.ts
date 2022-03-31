@@ -98,7 +98,7 @@ export async function notifyDiscordSale(
       },
     ],
     image: {
-      url: encodeURI(nftData.image),
+      url: "attachment://nft.gif",
       width: 400,
       height: 400,
     },
