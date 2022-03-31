@@ -1,5 +1,6 @@
 import Discord, {
   MessageActionRow,
+  MessageAttachment,
   MessageEmbed,
   TextChannel,
 } from "discord.js";
@@ -68,6 +69,10 @@ export async function notifyDiscordSale(
     ],
   });
 
+  const { data: imageDL } = await axios.get(nftData.image, {
+    responseType: "arraybuffer",
+  });
+  const ma = new MessageAttachment(imageDL, "nft.gif");
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
@@ -105,6 +110,7 @@ export async function notifyDiscordSale(
   });
 
   await channel.send({
+    files: [ma],
     components: [actionRowMsg],
     embeds: [embedMsg],
   });
@@ -158,7 +164,10 @@ export async function notifyDiscordListing(
       },
     ],
   });
-
+  const { data: imageDL } = await axios.get(nftData.image, {
+    responseType: "arraybuffer",
+  });
+  const ma = new MessageAttachment(imageDL, "nft.gif");
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
@@ -177,7 +186,7 @@ export async function notifyDiscordListing(
       },
     ],
     image: {
-      url: encodeURI(nftData.image),
+      url: "attachment://nft.gif",
       width: 400,
       height: 400,
     },
@@ -189,6 +198,7 @@ export async function notifyDiscordListing(
   });
 
   await channel.send({
+    files: [ma],
     components: [actionRowMsg],
     embeds: [embedMsg],
   });
