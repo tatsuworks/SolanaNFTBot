@@ -94,8 +94,8 @@ export async function notifyDiscordSale(
     ],
     image: {
       url: encodeURI(nftData.image),
-      width: 600,
-      height: 600,
+      width: 400,
+      height: 400,
     },
     footer: {
       text: `Sold on ${marketplace.name}`,
@@ -178,8 +178,8 @@ export async function notifyDiscordListing(
     ],
     image: {
       url: encodeURI(nftData.image),
-      width: 600,
-      height: 600,
+      width: 400,
+      height: 400,
     },
     footer: {
       text: `Listed on ${marketplace.name}`,
