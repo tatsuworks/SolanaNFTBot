@@ -67,7 +67,9 @@ export default function newWorker(
       });
 
       // cut off after this batch
-      notifyAfter = maxListedAt;
+      if (notifyAfter < maxListedAt) {
+        notifyAfter = maxListedAt;
+      }
     },
   };
 }
