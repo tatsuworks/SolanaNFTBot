@@ -7,7 +7,6 @@ FROM node:16 as builder
 WORKDIR /solananftbot
 COPY . .
 COPY --from=dependencies /solananftbot/node_modules ./node_modules
-COPY --from=dependencies /solananftbot/.env ./.env
 RUN yarn build
 
 FROM node:16 as runner
@@ -18,7 +17,6 @@ ENV NODE_ENV production
 COPY --from=builder /solananftbot/dist ./dist
 COPY --from=builder /solananftbot/node_modules ./node_modules
 COPY --from=builder /solananftbot/package.json ./package.json
-COPY --from=builder /solananftbot/.env ./.env
 
 EXPOSE 4000
 CMD ["yarn", "start"]
