@@ -1,6 +1,6 @@
 FROM node:16 as dependencies
 WORKDIR /solananftbot
-COPY package.json yarn.lock .env ./
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
 FROM node:16 as builder
