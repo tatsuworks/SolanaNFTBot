@@ -21,9 +21,11 @@ import queue from "queue";
 
 (async () => {
   try {
-    const result = dotenv.config();
-    if (result.error) {
-      throw result.error;
+    if (process.env.NODE_ENV === "development") {
+      const result = dotenv.config();
+      if (result.error) {
+        throw result.error;
+      }
     }
     const config = loadConfig();
     const port = process.env.PORT || 4000;
