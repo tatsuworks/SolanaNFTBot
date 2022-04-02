@@ -11,6 +11,7 @@ import { fetchDiscordChannel } from "./index";
 import { MEActivity } from "workers/types";
 import axios, { AxiosError } from "axios";
 import magicEden from "lib/marketplaces/magicEden";
+import { getSOLInUSD } from "workers/priceCheck";
 
 const status: {
   totalNotified: number;
@@ -73,6 +74,7 @@ export async function notifyDiscordSale(
     responseType: "arraybuffer",
   });
   const ma = new MessageAttachment(imageDL, "nft.gif");
+  const priceUSD = await getSOLInUSD(nftSale.getPriceInSOL());
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
@@ -85,6 +87,11 @@ export async function notifyDiscordSale(
           nftSale.method === SaleMethod.Bid ? "(Via bidding)" : ""
         }`,
         inline: false,
+      },
+      {
+        name: "Price (USD)",
+        value: `\`${priceUSD}\``,
+        inline: true,
       },
       {
         name: "Buyer",
@@ -168,6 +175,8 @@ export async function notifyDiscordListing(
     responseType: "arraybuffer",
   });
   const ma = new MessageAttachment(imageDL, "nft.gif");
+  const priceUSD = await getSOLInUSD(listing.price);
+
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
@@ -175,9 +184,14 @@ export async function notifyDiscordListing(
     timestamp: new Date(listing.blockTime * 1000),
     fields: [
       {
-        name: "Price",
-        value: `${listing.price} SOL◎`,
-        inline: false,
+        name: "Price (SOL◎)",
+        value: `\`${listing.price}\``,
+        inline: true,
+      },
+      {
+        name: "Price (USD)",
+        value: `\`${priceUSD}\``,
+        inline: true,
       },
       {
         name: "Seller",
