@@ -15,6 +15,8 @@ export const getSOLInUSD = async (price: number) => {
     rate = newRate;
     last = new Date();
   }
-
-  return rate * price;
+  if (!isNaN(rate) && !isNaN(price)) {
+    return (rate * price).toFixed(2);
+  }
+  return "N/A";
 };
