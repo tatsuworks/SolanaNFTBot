@@ -86,7 +86,7 @@ export async function notifyDiscordSale(
         value: `${nftSale.getPriceInSOL()} SOL◎ ${
           nftSale.method === SaleMethod.Bid ? "(Via bidding)" : ""
         }`,
-        inline: false,
+        inline: true,
       },
       {
         name: "Price (USD)",
@@ -96,12 +96,12 @@ export async function notifyDiscordSale(
       {
         name: "Buyer",
         value: craftAccountLink(nftSale.buyer),
-        inline: true,
+        inline: false,
       },
       {
         name: "Seller",
         value: craftAccountLink(nftSale.seller),
-        inline: true,
+        inline: false,
       },
     ],
     image: {
@@ -196,7 +196,7 @@ export async function notifyDiscordListing(
       {
         name: "Seller",
         value: craftAccountLink(listing.seller),
-        inline: true,
+        inline: false,
       },
     ],
     image: {
