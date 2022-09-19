@@ -1,14 +1,10 @@
-import { Worker } from "./types";
+import { Worker, Project } from "./types";
 import { Connection, ParsedConfirmedTransaction } from "@solana/web3.js";
 import { fetchWeb3Transactions } from "lib/solana/connection";
 import { parseNFTSale } from "lib/marketplaces";
 import logger from "lib/logger";
 import { NotificationType, Notifier } from "lib/notifier";
-
-export interface Project {
-  mintAddress: string;
-  discordChannelId: string;
-}
+import { newNotificationsTracker } from "./helpers";
 
 function getSignatureFromTx(
   tx?: ParsedConfirmedTransaction
@@ -19,22 +15,6 @@ function getSignatureFromTx(
   return undefined;
 }
 
-function newNotificationsTracker(limit: number = 50) {
-  let notifiedTxs: string[] = [];
-
-  return {
-    alreadyNotified(tx: string) {
-      return notifiedTxs.includes(tx);
-    },
-    trackNotifiedTx(tx: string) {
-      notifiedTxs = [tx, ...notifiedTxs];
-      if (notifiedTxs.length > limit) {
-        notifiedTxs.pop();
-      }
-    },
-  };
-}
-
 export default function newWorker(
   notifier: Notifier,
   web3Conn: Connection,
@@ -42,7 +22,6 @@ export default function newWorker(
 ): Worker {
   const timestamp = Date.now();
   let notifyAfter = new Date(timestamp);
-
   /**
    * This var keeps track of the latest tx so we can optimize the rpc call
    */
@@ -55,6 +34,7 @@ export default function newWorker(
 
   return {
     async execute() {
+      if (!project.mintAddress) throw new Error("mint address must be set");
       await fetchWeb3Transactions(web3Conn, project.mintAddress, {
         limit: 50,
         until: getSignatureFromTx(latestParsedTx),

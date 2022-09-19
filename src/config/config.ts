@@ -1,7 +1,11 @@
-export interface Subscription {
-  discordChannelId: string;
-  type: "NFTSale";
-  mintAddress: string;
+import { Project } from "workers/types";
+
+export enum SubscriptionType {
+  Sale = "NFTSale",
+  Listing = "NFTListing",
+}
+export interface Subscription extends Project {
+  type: SubscriptionType;
 }
 
 interface TwitterConfig {
@@ -45,9 +49,20 @@ export function loadConfig(): MutableConfig {
     process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID
   ) {
     config.subscriptions.push({
-      type: "NFTSale",
+      type: SubscriptionType.Sale,
       discordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
       mintAddress: process.env.SUBSCRIPTION_MINT_ADDRESS || "",
+    });
+  }
+  if (
+    process.env.COLLECTION &&
+    process.env.SUBSCRIPTION_DISCORD_LISTING_CHANNEL_ID
+  ) {
+    config.subscriptions.push({
+      type: SubscriptionType.Listing,
+      discordChannelId:
+        process.env.SUBSCRIPTION_DISCORD_LISTING_CHANNEL_ID || "",
+      collection: process.env.COLLECTION || "",
     });
   }
 

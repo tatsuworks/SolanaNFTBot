@@ -1,15 +1,19 @@
-import {Config} from "config";
+import { Config } from "config";
 import { initClient as initDiscordClient } from "lib/discord";
 import initTwitterClient from "lib/twitter";
-import notifyDiscordSale from "lib/discord/notifyDiscordSale";
+import {
+  notifyDiscordSale,
+  notifyDiscordListing,
+} from "lib/discord/notifyDiscord";
 import notifyTwitter from "lib/twitter/notifyTwitter";
-import { Project } from "workers/notifyNFTSalesWorker";
 import logger from "lib/logger";
 import queue from "queue";
 import Discord from "discord.js";
+import { MEActivity } from "workers/types";
 
 export enum NotificationType {
   Sale,
+  Listing,
 }
 
 export interface Notifier {
@@ -37,7 +41,7 @@ function queueNotification(
 }
 
 export async function newNotifierFactory(config: Config, nQueue: queue) {
-  let discordClient:Discord.Client;
+  let discordClient: Discord.Client;
   if (config.discordBotToken) {
     discordClient = await initDiscordClient(config.discordBotToken);
   }
@@ -45,15 +49,11 @@ export async function newNotifierFactory(config: Config, nQueue: queue) {
   const twitterClient = await initTwitterClient(config.twitter);
 
   return {
-    create(project: Project): Notifier {
+    create(discordChannelId: string): Notifier {
       async function notifySale(data: any) {
         if (discordClient) {
           queueNotification(nQueue, Platform.Discord, async () => {
-            await notifyDiscordSale(
-              discordClient,
-              project.discordChannelId,
-              data
-            );
+            await notifyDiscordSale(discordClient, discordChannelId, data);
           });
         }
 
@@ -63,12 +63,28 @@ export async function newNotifierFactory(config: Config, nQueue: queue) {
           });
         }
       }
+      async function notifyListing(data: MEActivity) {
+        if (discordClient) {
+          queueNotification(nQueue, Platform.Discord, async () => {
+            await notifyDiscordListing(discordClient, discordChannelId, data);
+          });
+        }
+
+        //TODO
+        // if (twitterClient) {
+        //   queueNotification(nQueue, Platform.Twitter, async () => {
+        //     await notifyTwitter(twitterClient, data);
+        //   });
+        // }
+      }
 
       return {
         async notify(nType: NotificationType, data: any) {
           if (nType === NotificationType.Sale) {
-            await notifySale(data);
-            return;
+            return await notifySale(data);
+          }
+          if (nType === NotificationType.Listing) {
+            return await notifyListing(data);
           }
         },
       };

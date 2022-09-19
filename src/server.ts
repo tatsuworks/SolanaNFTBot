@@ -6,10 +6,11 @@ import {
 import initWorkers from "workers/initWorkers";
 import { newConnection } from "lib/solana/connection";
 import dotenv from "dotenv";
-import notifyDiscordSale, { getStatus } from "lib/discord/notifyDiscordSale";
-import { loadConfig } from "config";
+import { notifyDiscordSale, getStatus } from "lib/discord/notifyDiscord";
+import { loadConfig, SubscriptionType } from "config";
 import { Worker } from "workers/types";
 import notifyNFTSalesWorker from "workers/notifyNFTSalesWorker";
+import notifyMEListingsWorker from "workers/notifyMEListingsWorker";
 import { parseNFTSale } from "lib/marketplaces";
 import { ParsedConfirmedTransaction } from "@solana/web3.js";
 import notifyTwitter from "lib/twitter/notifyTwitter";
@@ -20,9 +21,11 @@ import queue from "queue";
 
 (async () => {
   try {
-    const result = dotenv.config();
-    if (result.error) {
-      throw result.error;
+    if (process.env.NODE_ENV === "development") {
+      const result = dotenv.config();
+      if (result.error) {
+        throw result.error;
+      }
     }
     const config = loadConfig();
     const port = process.env.PORT || 4000;
@@ -40,10 +43,14 @@ import queue from "queue";
     server.get("/", (req, res) => {
       const { totalNotified, lastNotified } = getStatus();
       res.send(`
-      ${config.subscriptions.map(
-        (s) =>
-          `Watching the address ${s.mintAddress} at discord channel #${s.discordChannelId} for NFT sales.<br/>`
-      )}
+      ${config.subscriptions.map((s) => {
+        if (s.type === SubscriptionType.Sale) {
+          `Watching the address ${s.mintAddress} at discord channel #${s.discordChannelId} for NFT sales.<br/>`;
+        }
+        if (s.type === SubscriptionType.Listing) {
+          `Watching the collection ${s.collection} at discord channel #${s.discordChannelId} for NFT listings.<br/>`;
+        }
+      })}
       Total notifications sent: ${totalNotified}<br/>
       ${
         lastNotified
@@ -105,12 +112,27 @@ import queue from "queue";
     });
 
     const workers: Worker[] = config.subscriptions.map((s) => {
-      const project = {
-        discordChannelId: s.discordChannelId,
-        mintAddress: s.mintAddress,
-      };
-      const notifier = notifierFactory.create(project);
-      return notifyNFTSalesWorker(notifier, web3Conn, project);
+      if (s.type === SubscriptionType.Sale) {
+        if (!s.mintAddress)
+          throw new Error("mint address must be provided for sales tracking");
+        const project = {
+          discordChannelId: s.discordChannelId,
+          mintAddress: s.mintAddress,
+        };
+        const notifier = notifierFactory.create(s.discordChannelId);
+        return notifyNFTSalesWorker(notifier, web3Conn, project);
+      }
+      if (s.type === SubscriptionType.Listing) {
+        if (!s.collection)
+          throw new Error("collection must be provided for listings tracking");
+        const project = {
+          discordChannelId: s.discordChannelId,
+          collection: s.collection,
+        };
+        const notifier = notifierFactory.create(s.discordChannelId);
+        return notifyMEListingsWorker(notifier, project);
+      }
+      throw new Error("SubscriptionType is invalid");
     });
 
     const _ = initWorkers(workers);
