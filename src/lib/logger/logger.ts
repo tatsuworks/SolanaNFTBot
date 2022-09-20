@@ -6,7 +6,9 @@ const logger = {
     console.log(this.prefix("info"), msg, ...optionalParams);
   },
   warn(msg?: any, ...optionalParams: any[]) {
-    console.warn(this.prefix("warning"), msg, ...optionalParams);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn(this.prefix("warning"), msg, ...optionalParams);
+    }
   },
   error(msg?: any, ...optionalParams: any[]) {
     console.error(this.prefix("error"), msg, ...optionalParams);
