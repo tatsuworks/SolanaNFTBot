@@ -44,23 +44,25 @@ export function loadConfig(): MutableConfig {
    * Load config from permanent storage
    */
 
-  if (
-    process.env.SUBSCRIPTION_MINT_ADDRESS &&
-    process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID
-  ) {
-    config.subscriptions.push({
-      type: SubscriptionType.Sale,
-      discordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
-      mintAddress: process.env.SUBSCRIPTION_MINT_ADDRESS || "",
-    });
-  }
+  // if (
+  //   process.env.SUBSCRIPTION_MINT_ADDRESS &&
+  //   process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID
+  // ) {
+  //   config.subscriptions.push({
+  //     type: SubscriptionType.Sale,
+  //     discordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
+  //     mintAddress: process.env.SUBSCRIPTION_MINT_ADDRESS || "",
+  //   });
+  // }
+
   if (
     process.env.COLLECTION &&
     process.env.SUBSCRIPTION_DISCORD_LISTING_CHANNEL_ID
   ) {
     config.subscriptions.push({
       type: SubscriptionType.Listing,
-      discordChannelId:
+      salesDiscordChannelId: process.env.SUBSCRIPTION_DISCORD_CHANNEL_ID || "",
+      listingsDiscordChannelId:
         process.env.SUBSCRIPTION_DISCORD_LISTING_CHANNEL_ID || "",
       collection: process.env.COLLECTION || "",
     });

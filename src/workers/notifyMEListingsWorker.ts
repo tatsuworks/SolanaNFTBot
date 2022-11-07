@@ -21,10 +21,10 @@ const getMEActivity = async (
       }
     );
     const data = <MEActivity[]>results.data;
-    const listings = data.filter((mea) => {
-      return mea.type === "list";
+    const salesOrListings = data.filter((mea) => {
+      return mea.type === "list" || mea.type === "buyNow";
     });
-    return listings;
+    return salesOrListings;
   } catch (err: any | AxiosError) {
     if (axios.isAxiosError(err)) {
       // Access to config, request, and response
@@ -35,8 +35,8 @@ const getMEActivity = async (
 };
 
 export default function newWorker(
-  notifier: Notifier,
-  project: Project
+  salesNotifier: Notifier,
+  listingsNotifier: Notifier
 ): Worker {
   const timestamp = Date.now();
   let notifyAfter = new Date(timestamp);
@@ -62,7 +62,13 @@ export default function newWorker(
           logger.warn(`Duplicate listing ignored: ${nftListing.signature}`);
           return;
         }
-        await notifier.notify(NotificationType.Listing, nftListing);
+
+        if (nftListing.type === "list") {
+          await listingsNotifier.notify(NotificationType.Listing, nftListing);
+        } else {
+          await salesNotifier.notify(NotificationType.Sale, nftListing);
+        }
+        
         latestNotifications.trackNotifiedTx(nftListing.signature);
       });
 

@@ -43,14 +43,6 @@ import queue from "queue";
     server.get("/", (req, res) => {
       const { totalNotified, lastNotified } = getStatus();
       res.send(`
-      ${config.subscriptions.map((s) => {
-        if (s.type === SubscriptionType.Sale) {
-          `Watching the address ${s.mintAddress} at discord channel #${s.discordChannelId} for NFT sales.<br/>`;
-        }
-        if (s.type === SubscriptionType.Listing) {
-          `Watching the collection ${s.collection} at discord channel #${s.discordChannelId} for NFT listings.<br/>`;
-        }
-      })}
       Total notifications sent: ${totalNotified}<br/>
       ${
         lastNotified
@@ -112,25 +104,23 @@ import queue from "queue";
     });
 
     const workers: Worker[] = config.subscriptions.map((s) => {
-      if (s.type === SubscriptionType.Sale) {
-        if (!s.mintAddress)
-          throw new Error("mint address must be provided for sales tracking");
-        const project = {
-          discordChannelId: s.discordChannelId,
-          mintAddress: s.mintAddress,
-        };
-        const notifier = notifierFactory.create(s.discordChannelId);
-        return notifyNFTSalesWorker(notifier, web3Conn, project);
-      }
+      // if (s.type === SubscriptionType.Sale) {
+      //   if (!s.mintAddress)
+      //     throw new Error("mint address must be provided for sales tracking");
+      //   const project = {
+      //     discordChannelId: s.salesDiscordChannelId,
+      //     mintAddress: s.mintAddress,
+      //   };
+      //   const notifier = notifierFactory.create(s.discordChannelId);
+      //   return notifyNFTSalesWorker(notifier, web3Conn, project);
+      // }
       if (s.type === SubscriptionType.Listing) {
         if (!s.collection)
           throw new Error("collection must be provided for listings tracking");
-        const project = {
-          discordChannelId: s.discordChannelId,
-          collection: s.collection,
-        };
-        const notifier = notifierFactory.create(s.discordChannelId);
-        return notifyMEListingsWorker(notifier, project);
+          
+        const salesNotifier = notifierFactory.create(s.salesDiscordChannelId);
+        const listingsNotifier = notifierFactory.create(s.listingsDiscordChannelId);
+        return notifyMEListingsWorker(salesNotifier, listingsNotifier);
       }
       throw new Error("SubscriptionType is invalid");
     });

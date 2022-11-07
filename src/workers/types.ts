@@ -3,7 +3,8 @@ export interface Worker {
 }
 
 export interface Project {
-  discordChannelId: string;
+  salesDiscordChannelId: string;
+  listingsDiscordChannelId: string;
   mintAddress?: string;
   collection?: string;
 }
