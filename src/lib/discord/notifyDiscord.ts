@@ -135,57 +135,69 @@ function craftAccountLink(address: string | undefined) {
   const truncated = truncateForAddress(address);
   return `[${truncated}](https://solscan.io/account/${address})`;
 }
-export async function notifyDiscordListing(
+export async function notifyDiscordActivity(
   client: Discord.Client,
   channelId: string,
-  listing: MEActivity,
+  activity: MEActivity,
   test?: boolean
 ) {
   const channel = await fetchDiscordChannel(client, channelId);
   if (!channel) {
     return;
   }
-
-  const description = `Listed for ${listing.price} SOL◎ on MagicEden`;
+  const isListing = activity.type === "list";
+  const verb = isListing ? "Listed" : "Sold";
+  const description = `${verb} for ${activity.price} SOL◎ on MagicEden`;
   const marketplace = magicEden;
   // get mint info?
-  const nftData = await getMETokenMetaData(listing.tokenMint);
-  const url = `https://magiceden.io/item-details/${listing.tokenMint}`;
+  const nftData = await getMETokenMetaData(activity.tokenMint);
+  const url = `https://magiceden.io/item-details/${activity.tokenMint}`;
+  let components = [];
+  if (!isListing) {
+    components.push({
+      style: 5,
+      label: `View Transaction`,
+      url: `https://solscan.io/tx/${activity.signature}`,
+      disabled: false,
+      type: 2,
+    });
+  }
+  components = components.concat([
+    {
+      style: 5,
+      label: `View Token`,
+      url: `https://solscan.io/token/${activity.tokenMint}`,
+      disabled: false,
+      type: 2,
+    },
+    {
+      style: 5,
+      label: `Moonrank`,
+      url: `https://moonrank.app/collection/meekolony/${activity.tokenMint}`,
+      disabled: false,
+      type: 2,
+    },
+  ]);
 
   const actionRowMsg = new MessageActionRow({
     type: 1,
-    components: [
-      {
-        style: 5,
-        label: `View Token`,
-        url: `https://solscan.io/token/${listing.tokenMint}`,
-        disabled: false,
-        type: 2,
-      },
-      {
-        style: 5,
-        label: `Moonrank`,
-        url: `https://moonrank.app/collection/meekolony/${listing.tokenMint}`,
-        disabled: false,
-        type: 2,
-      },
-    ],
+    components,
   });
   const { data: imageDL } = await axios.get(nftData.image, {
     responseType: "arraybuffer",
   });
   const ma = new MessageAttachment(imageDL, "nft.gif");
-  const priceUSD = await getSOLInUSD(listing.price);
+  const priceUSD = await getSOLInUSD(activity.price);
 
   const embedMsg = new MessageEmbed({
     color: 0x0099ff,
     title: nftData.name,
     url,
-    timestamp: new Date(listing.blockTime * 1000),
+    timestamp: new Date(activity.blockTime * 1000),
     fields: [
       {
         name: "Price (SOL◎)",
-        value: `\`${listing.price}\``,
+        value: `\`${activity.price}\``,
         inline: true,
       },
       {
@@ -195,7 +207,7 @@ export async function notifyDiscordListing(
       },
       {
         name: "Seller",
-        value: craftAccountLink(listing.seller),
+        value: craftAccountLink(activity.seller),
         inline: false,
       },
     ],
@@ -205,7 +217,7 @@ export async function notifyDiscordListing(
       height: 400,
     },
     footer: {
-      text: `Listed on ${marketplace.name}`,
+      text: `${verb} on ${marketplace.name}`,
       icon_url: marketplace.iconURL,
       proxy_icon_url: url,
     },

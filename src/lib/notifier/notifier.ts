@@ -3,7 +3,7 @@ import { initClient as initDiscordClient } from "lib/discord";
 import initTwitterClient from "lib/twitter";
 import {
   notifyDiscordSale,
-  notifyDiscordListing,
+  notifyDiscordActivity,
 } from "lib/discord/notifyDiscord";
 import notifyTwitter from "lib/twitter/notifyTwitter";
 import logger from "lib/logger";
@@ -53,7 +53,7 @@ export async function newNotifierFactory(config: Config, nQueue: queue) {
       async function notifySale(data: any) {
         if (discordClient) {
           queueNotification(nQueue, Platform.Discord, async () => {
-            await notifyDiscordSale(discordClient, discordChannelId, data);
+            await notifyDiscordActivity(discordClient, discordChannelId, data);
           });
         }
 
@@ -66,7 +66,7 @@ export async function newNotifierFactory(config: Config, nQueue: queue) {
       async function notifyListing(data: MEActivity) {
         if (discordClient) {
           queueNotification(nQueue, Platform.Discord, async () => {
-            await notifyDiscordListing(discordClient, discordChannelId, data);
+            await notifyDiscordActivity(discordClient, discordChannelId, data);
           });
         }
 
