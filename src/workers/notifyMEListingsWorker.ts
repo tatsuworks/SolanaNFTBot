@@ -22,7 +22,10 @@ const getMEActivity = async (
     );
     const data = <MEActivity[]>results.data;
     const salesOrListings = data.filter((mea) => {
-      return mea.type === "list" || mea.type === "buyNow";
+      return (
+        mea.source === "magiceden_v2" &&
+        (mea.type === "list" || mea.type === "buyNow")
+      );
     });
     return salesOrListings;
   } catch (err: any | AxiosError) {
@@ -68,7 +71,7 @@ export default function newWorker(
         } else {
           await salesNotifier.notify(NotificationType.Sale, nftListing);
         }
-        
+
         latestNotifications.trackNotifiedTx(nftListing.signature);
       });
 
