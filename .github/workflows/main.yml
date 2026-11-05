@@ -33,7 +33,7 @@ jobs:
           # Additional flags to pass to the install command.
           flags: --frozen-lockfile
           # Node version to use, defaults to the current LTS version.
-          node-version: 16.x
+          node-version: 22.23.4
       - name: Build
         run: yarn build
       - name: Test
