@@ -5,7 +5,7 @@
   "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
-    "node": ">=22.23.4"
+    "node": "^22.23.4"
   },
   "scripts": {
     "dev": "nodemon",
@@ -46,6 +46,6 @@
   },
   "volta": {
     "node": "22.23.4",
-    "yarn": "1.22.18"
+    "yarn": "1.22.22"
   }
 }

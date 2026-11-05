@@ -73,8 +73,8 @@ docker-compose logs bot
 
 ## Running in development
 ### Requirement
-* Node >= 22.23.4 (Docker, CI and Volta pin 22.23.4)
-* Yarn
+* Node 22.x >= 22.23.4 (Docker, CI and Volta pin 22.23.4)
+* Yarn 1.22.22 (Docker and Volta)
 
 ### Instructions
 
@@ -167,7 +167,7 @@ Then, click on the Keys and tokens tab, and generate the Access Token and Secret
 
 ## Production deployment
 
-Node 22.23.4 includes the [eMudhra certificate distrust fix](https://nodejs.org/en/blog/release/v22.23.4). Rebuild and redeploy the image to adopt it; source changes do not patch running containers. Rolling back to Node 16 restores known compromised-certificate trust.
+Node 22.23.4 includes the [eMudhra certificate distrust fix](https://github.com/nodejs/node/pull/66871). Rebuild and redeploy the image to adopt it; source changes do not patch running containers. Rolling back to Node 16 restores known compromised-certificate trust.
 
 For a local-only build, run `docker build -t nftbot:local .`. Do not use `build.sh` for validation: it reads local `secrets.sh` and pushes to the registry. Publishing and deployment require separate authorization. After rollout, verify the running image/runtime, Discord connection and normal notification behavior; test valid HTTPS and rejection of the compromised certificates from inside the pod.
 
