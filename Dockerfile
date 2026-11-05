@@ -1,15 +1,15 @@
-FROM node:16 as dependencies
+FROM node:22.23.4-bookworm as dependencies
 WORKDIR /solananftbot
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
-FROM node:16 as builder
+FROM node:22.23.4-bookworm as builder
 WORKDIR /solananftbot
 COPY . .
 COPY --from=dependencies /solananftbot/node_modules ./node_modules
 RUN yarn build
 
-FROM node:16 as runner
+FROM node:22.23.4-bookworm as runner
 WORKDIR /solananftbot
 ENV NODE_ENV production
 # If you are using a custom next.config.js file, uncomment this line.
