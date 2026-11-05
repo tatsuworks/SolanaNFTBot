@@ -1,7 +1,7 @@
 .git
-node_modules
+**/node_modules
 dist
 coverage
-.env*
-secrets.sh
-*.pem
+**/.env*
+**/secrets.sh
+**/*.pem

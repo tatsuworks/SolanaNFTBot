@@ -76,6 +76,8 @@ docker-compose logs bot
 * Node 22.x >= 22.23.4 (Docker, CI and Volta pin 22.23.4)
 * Yarn 1.22.22 (Docker and Volta)
 
+The engine range deliberately supports only patched Node 22.x. Yarn Classic fails `yarn install` on Node 24/26, including patched releases; use Volta's pinned runtime rather than disabling engine checks. Node 22 is a maintenance-LTS line, so broader supported-LTS compatibility must be tested before it reaches end of support.
+
 ### Instructions
 
 #### 1. Install dependencies
